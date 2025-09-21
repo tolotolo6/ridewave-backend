@@ -1,0 +1,14 @@
+# Node.js dependencies 
+node_modules/ 
+ECHO is on.
+# Environment variables 
+.env 
+ECHO is on.
+# Logs 
+npm-debug.log* 
+yarn-debug.log* 
+yarn-error.log* 
+ECHO is on.
+# OS files 
+.DS_Store 
+Thumbs.db 
