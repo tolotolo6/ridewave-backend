@@ -4,12 +4,10 @@ import cors from "cors";
 import bodyParser from "body-parser";
 import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
-import authRoutes from "./routes/auth.js";
 
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
-app.use("/api/auth", authRoutes);
 
 // === MongoDB Connection ===
 const MONGO_URI = "mongodb+srv://Ridewave_user:aezgH215Nlhwz0K8@cluster0.w49ewkg.mongodb.net/ridewave?retryWrites=true&w=majority&appName=Cluster0";
@@ -17,6 +15,10 @@ const MONGO_URI = "mongodb+srv://Ridewave_user:aezgH215Nlhwz0K8@cluster0.w49ewkg
 mongoose.connect(MONGO_URI)
   .then(() => console.log("✅ MongoDB Connected"))
   .catch(err => console.error("❌ MongoDB Connection Error:", err));
+
+// === Import Auth Routes ===
+import authRoutes from "./routes/auth.js";
+app.use("/api/auth", authRoutes);
 
 // === JWT Middleware ===
 const JWT_SECRET = process.env.JWT_SECRET || "supersecretkey";
@@ -63,7 +65,7 @@ const CALLBACK_URL = "https://ridewave-backend-vfhb.onrender.com/api/payment/cal
 const OAUTH_URL = "https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials";
 const STK_PUSH_URL = "https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest";
 
-// === Get Daraja Access Token ===
+// === Get Access Token ===
 const getToken = async () => {
   const auth = Buffer.from(`${CONSUMER_KEY}:${CONSUMER_SECRET}`).toString("base64");
   const response = await axios.get(OAUTH_URL, {
@@ -120,7 +122,7 @@ app.post("/api/payment/stkpush", authenticateToken, async (req, res) => {
   }
 });
 
-// === Callback Route (Unprotected, called by Safaricom) ===
+// === Callback Route ===
 app.post("/api/payment/callback", async (req, res) => {
   console.log("📥 Daraja Callback Received:", JSON.stringify(req.body, null, 2));
 
@@ -137,7 +139,7 @@ app.post("/api/payment/callback", async (req, res) => {
       PhoneNumber: callbackData.CallbackMetadata?.Item.find(i => i.Name === "PhoneNumber")?.Value,
       TransactionDate: callbackData.CallbackMetadata?.Item.find(i => i.Name === "TransactionDate")?.Value,
       MpesaReceiptNumber: callbackData.CallbackMetadata?.Item.find(i => i.Name === "MpesaReceiptNumber")?.Value,
-      userId: null // later we can link payments to logged-in user
+      userId: null
     };
 
     const payment = new Payment(paymentInfo);
@@ -151,8 +153,20 @@ app.post("/api/payment/callback", async (req, res) => {
   }
 });
 
+// === Get All Payments (NEW) ===
+app.get("/api/payment/all", async (req, res) => {
+  try {
+    const payments = await Payment.find().sort({ createdAt: -1 });
+    res.json(payments);
+  } catch (err) {
+    console.error("❌ Error fetching payments:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
 // === Start Server ===
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () =>
   console.log(`🚀 Ridewave backend running on port ${PORT}`)
 );
+
