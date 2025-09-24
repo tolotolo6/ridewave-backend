@@ -1,24 +1,75 @@
-import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import bcrypt from "bcryptjs";
+import User from "../models/User.js";
+import Role from "../models/Role.js";
+const secret = process.env.JWT_SECRET;
 
-const users = []; // temporary in-memory storage
+// ---------------- SIGNUP ----------------
+const signup = async (req, res) => {
+  try {
+    const { username, email, password, roles } = req.body;
 
-export const register = (req, res) => {
-  const { phone, password } = req.body;
-  const hashedPassword = bcrypt.hashSync(password, 10);
-  const user = { id: users.length + 1, phone, password: hashedPassword };
-  users.push(user);
-  res.json({ message: "User registered", user });
+    const hashedPassword = await bcrypt.hash(password, 8);
+
+    const user = new User({
+      username,
+      email,
+      password: hashedPassword
+    });
+
+    if (roles && roles.length > 0) {
+      const foundRoles = await Role.find({ name: { $in: roles } });
+      user.roles = foundRoles.map(role => role._id);
+    } else {
+      const riderRole = await Role.findOne({ name: "rider" });
+      user.roles = [riderRole._id];
+    }
+
+    await user.save();
+
+    res.status(201).send({ message: "User registered successfully!" });
+  } catch (err) {
+    res.status(500).send({ message: err.message });
+  }
 };
 
-export const login = (req, res) => {
-  const { phone, password } = req.body;
-  const user = users.find((u) => u.phone === phone);
-  if (!user) return res.status(400).json({ message: "User not found" });
+// ---------------- SIGNIN ----------------
+const signin = async (req, res) => {
+  try {
+    const user = await User.findOne({ username: req.body.username })
+      .populate("roles", "-__v");
 
-  const isMatch = bcrypt.compareSync(password, user.password);
-  if (!isMatch) return res.status(400).json({ message: "Invalid password" });
+    if (!user) {
+      return res.status(404).send({ message: "User Not Found." });
+    }
 
-  const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: "1h" });
-  res.json({ message: "Login successful", token });
+    const passwordIsValid = bcrypt.compareSync(
+      req.body.password,
+      user.password
+    );
+
+    if (!passwordIsValid) {
+      return res.status(401).send({
+        accessToken: null,
+        message: "Invalid Password!"
+      });
+    }
+
+    const token = jwt.sign({ id: user.id }, secret, { expiresIn: 86400 });
+
+    const authorities = user.roles.map(role => "ROLE_" + role.name.toUpperCase());
+
+    res.status(200).send({
+      id: user._id,
+      username: user.username,
+      email: user.email,
+      roles: authorities,
+      accessToken: token
+    });
+  } catch (err) {
+    res.status(500).send({ message: err.message });
+  }
 };
+
+// ✅ Correct export
+export { signup, signin };
