@@ -1,105 +1,72 @@
-// routes/rideRoutes.js
 import express from "express";
-import { verifyToken, isRider, isDriver, isAdmin } from "../middleware/authJwt.js";
 import Ride from "../models/Ride.js";
+import Driver from "../models/Driver.js";
+import { authMiddleware } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-// 🟢 Rider requests a ride
-router.post("/", verifyToken, isRider, async (req, res) => {
+// Accept a ride
+router.post("/:rideId/accept", authMiddleware, async (req, res) => {
   try {
-    const { pickupLocation, dropoffLocation } = req.body;
-
-    if (!pickupLocation || !dropoffLocation) {
-      return res.status(400).json({ message: "Pickup and dropoff required" });
+    const driverProfile = await Driver.findOne({ user: req.user._id });
+    if (!driverProfile) {
+      return res.status(403).json({ message: "You must complete driver setup first" });
     }
 
-    const ride = new Ride({
-      rider: req.userId,
-      pickupLocation,
-      dropoffLocation,
-      status: "pending",
-    });
-
-    await ride.save();
-    res.status(201).json(ride);
-  } catch (err) {
-    res.status(500).json({ message: "Error creating ride", error: err.message });
-  }
-});
-
-// 🟡 Driver accepts a ride
-router.put("/:id/accept", verifyToken, isDriver, async (req, res) => {
-  try {
-    const ride = await Ride.findById(req.params.id);
-    if (!ride) {
-      return res.status(404).json({ message: "Ride not found" });
-    }
-
-    if (ride.status !== "pending") {
+    const ride = await Ride.findById(req.params.rideId);
+    if (!ride) return res.status(404).json({ message: "Ride not found" });
+    if (ride.status !== "requested") {
       return res.status(400).json({ message: "Ride already accepted or completed" });
     }
 
-    ride.driver = req.userId;
+    ride.driver = req.user._id;
     ride.status = "accepted";
     await ride.save();
 
-    res.json(ride);
-  } catch (err) {
-    res.status(500).json({ message: "Error accepting ride", error: err.message });
+    const populatedRide = await Ride.findById(ride._id)
+      .populate("rider", "name email")
+      .populate("driver", "name email")
+      .lean();
+
+    const driverDetails = await Driver.findOne({ user: req.user._id }).lean();
+    populatedRide.driverProfile = driverDetails;
+
+    res.json(populatedRide);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
   }
 });
 
-// 🟣 Driver completes a ride
-router.put("/:id/complete", verifyToken, isDriver, async (req, res) => {
+// Get rides for current user (rider or driver)
+router.get("/my", authMiddleware, async (req, res) => {
   try {
-    const ride = await Ride.findById(req.params.id);
-    if (!ride) {
-      return res.status(404).json({ message: "Ride not found" });
-    }
+    const query = {
+      $or: [{ rider: req.user._id }, { driver: req.user._id }]
+    };
 
-    if (ride.driver.toString() !== req.userId) {
-      return res.status(403).json({ message: "You are not assigned to this ride" });
-    }
+    const rides = await Ride.find(query)
+      .populate("rider", "name email")
+      .populate("driver", "name email")
+      .sort({ createdAt: -1 });
 
-    ride.status = "completed";
-    await ride.save();
+    const enrichedRides = await Promise.all(
+      rides.map(async (ride) => {
+        const rideObj = ride.toObject();
+        if (ride.driver) {
+          const driverProfile = await Driver.findOne({ user: ride.driver._id }).lean();
+          rideObj.driverProfile = driverProfile;
+        }
+        return rideObj;
+      })
+    );
 
-    res.json(ride);
-  } catch (err) {
-    res.status(500).json({ message: "Error completing ride", error: err.message });
-  }
-});
-
-// 🔵 Rider/Driver can view their own rides
-router.get("/", verifyToken, async (req, res) => {
-  try {
-    const rides = await Ride.find({
-      $or: [{ rider: req.userId }, { driver: req.userId }],
-    })
-      .populate("rider", "username email")
-      .populate("driver", "username email");
-
-    res.json(rides);
-  } catch (err) {
-    res.status(500).json({ message: "Error fetching rides", error: err.message });
-  }
-});
-
-// 🔴 Admin can view all rides
-router.get("/all", verifyToken, isAdmin, async (req, res) => {
-  try {
-    const rides = await Ride.find()
-      .populate("rider", "username email")
-      .populate("driver", "username email");
-
-    res.json(rides);
-  } catch (err) {
-    res.status(500).json({ message: "Error fetching all rides", error: err.message });
+    res.json(enrichedRides);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
   }
 });
 
 export default router;
-
-
 

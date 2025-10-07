@@ -1,75 +1,74 @@
-import jwt from "jsonwebtoken";
-import bcrypt from "bcryptjs";
-import User from "../models/User.js";
-import Role from "../models/Role.js";
-const secret = process.env.JWT_SECRET;
+// backend/controllers/authController.js
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
+const User = require("../models/User");
 
-// ---------------- SIGNUP ----------------
-const signup = async (req, res) => {
+// Helper to generate token
+const generateToken = (user) => {
+  return jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, {
+    expiresIn: "7d",
+  });
+};
+
+// Register
+exports.register = async (req, res) => {
   try {
-    const { username, email, password, roles } = req.body;
+    const { name, email, password, role } = req.body;
 
-    const hashedPassword = await bcrypt.hash(password, 8);
+    const existing = await User.findOne({ email });
+    if (existing) {
+      return res.status(400).json({ message: "Email already registered" });
+    }
 
-    const user = new User({
-      username,
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const user = await User.create({
+      name,
       email,
-      password: hashedPassword
+      password: hashedPassword,
+      role: role || "rider", // default role is rider
     });
 
-    if (roles && roles.length > 0) {
-      const foundRoles = await Role.find({ name: { $in: roles } });
-      user.roles = foundRoles.map(role => role._id);
-    } else {
-      const riderRole = await Role.findOne({ name: "rider" });
-      user.roles = [riderRole._id];
-    }
+    const token = generateToken(user);
 
-    await user.save();
-
-    res.status(201).send({ message: "User registered successfully!" });
+    res.status(201).json({
+      token,
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
+    });
   } catch (err) {
-    res.status(500).send({ message: err.message });
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
-// ---------------- SIGNIN ----------------
-const signin = async (req, res) => {
+// Login
+exports.login = async (req, res) => {
   try {
-    const user = await User.findOne({ username: req.body.username })
-      .populate("roles", "-__v");
+    const { email, password } = req.body;
 
-    if (!user) {
-      return res.status(404).send({ message: "User Not Found." });
-    }
+    const user = await User.findOne({ email });
+    if (!user) return res.status(400).json({ message: "Invalid credentials" });
 
-    const passwordIsValid = bcrypt.compareSync(
-      req.body.password,
-      user.password
-    );
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
 
-    if (!passwordIsValid) {
-      return res.status(401).send({
-        accessToken: null,
-        message: "Invalid Password!"
-      });
-    }
+    const token = generateToken(user);
 
-    const token = jwt.sign({ id: user.id }, secret, { expiresIn: 86400 });
-
-    const authorities = user.roles.map(role => "ROLE_" + role.name.toUpperCase());
-
-    res.status(200).send({
-      id: user._id,
-      username: user.username,
-      email: user.email,
-      roles: authorities,
-      accessToken: token
+    res.json({
+      token,
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
     });
   } catch (err) {
-    res.status(500).send({ message: err.message });
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
   }
 };
-
-// ✅ Correct export
-export { signup, signin };

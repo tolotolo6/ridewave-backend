@@ -1,39 +1,23 @@
-// models/Ride.js
 import mongoose from "mongoose";
 
-const rideSchema = new mongoose.Schema(
-  {
-    rider: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
-    driver: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      default: null,
-    },
-    pickupLocation: {
-      type: String,
-      required: true,
-    },
-    dropoffLocation: {
-      type: String,
-      required: true,
-    },
-    fare: {
-      type: Number,
-      default: 0, // we can later calculate/link to payments
-    },
-    status: {
-      type: String,
-      enum: ["pending", "accepted", "completed", "cancelled"],
-      default: "pending",
-    },
+const rideSchema = new mongoose.Schema({
+  rider: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
   },
-  { timestamps: true }
-);
+  driver: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+  },
+  pickupLocation: { type: String, required: true },
+  destination: { type: String, required: true },
+  fare: { type: Number, required: true, default: 0 },
+  status: {
+    type: String,
+    enum: ["requested", "accepted", "completed", "cancelled", "paid"],
+    default: "requested",
+  },
+}, { timestamps: true });
 
-const Ride = mongoose.model("Ride", rideSchema);
-
-export default Ride;
+export default mongoose.model("Ride", rideSchema);

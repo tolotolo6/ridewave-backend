@@ -1,329 +1,156 @@
 {
   "info": {
-    "name": "Ridewave API",
+    "name": "Ridewave API Final",
+    "_postman_id": "ridewave-final-collection-002",
+    "description": "Postman collection for Ridewave API with authentication, rides, and payments.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
     {
-      "name": "Auth",
-      "item": [
-        {
-          "name": "Signup Rider",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "http://localhost:3000/api/auth/signup",
-              "protocol": "http",
-              "host": [
-                "localhost"
-              ],
-              "port": "3000",
-              "path": [
-                "api",
-                "auth",
-                "signup"
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"username\": \"rider1\",\n  \"email\": \"rider1@example.com\",\n  \"password\": \"123456\",\n  \"roles\": [\n    \"rider\"\n  ]\n}"
-            }
-          }
+      "name": "Signup (Rider)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"John Rider\",\n  \"email\": \"john@example.com\",\n  \"password\": \"123456\",\n  \"phone\": \"254712345678\",\n  \"role\": \"rider\"\n}"
         },
-        {
-          "name": "Signup Driver",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "http://localhost:3000/api/auth/signup",
-              "protocol": "http",
-              "host": [
-                "localhost"
-              ],
-              "port": "3000",
-              "path": [
-                "api",
-                "auth",
-                "signup"
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"username\": \"driver1\",\n  \"email\": \"driver1@example.com\",\n  \"password\": \"123456\",\n  \"roles\": [\n    \"driver\"\n  ]\n}"
-            }
-          }
-        },
-        {
-          "name": "Login",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "http://localhost:3000/api/auth/login",
-              "protocol": "http",
-              "host": [
-                "localhost"
-              ],
-              "port": "3000",
-              "path": [
-                "api",
-                "auth",
-                "login"
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"email\": \"rider1@example.com\",\n  \"password\": \"123456\"\n}"
-            }
-          }
+        "url": {
+          "raw": "http://localhost:3000/api/auth/signup",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["api", "auth", "signup"]
         }
-      ]
+      }
     },
     {
-      "name": "Rides",
-      "item": [
-        {
-          "name": "Create Ride (Rider)",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "http://localhost:3000/api/rides",
-              "protocol": "http",
-              "host": [
-                "localhost"
-              ],
-              "port": "3000",
-              "path": [
-                "api",
-                "rides"
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"pickup\": \"Nairobi\",\n  \"destination\": \"Mombasa\"\n}"
-            }
-          }
+      "name": "Login (Rider)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"john@example.com\",\n  \"password\": \"123456\"\n}"
         },
-        {
-          "name": "Accept Ride (Driver)",
-          "request": {
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "http://localhost:3000/api/rides/{{rideId}}/accept",
-              "protocol": "http",
-              "host": [
-                "localhost"
-              ],
-              "port": "3000",
-              "path": [
-                "api",
-                "rides",
-                "{{rideId}}",
-                "accept"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Complete Ride (Driver)",
-          "request": {
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "http://localhost:3000/api/rides/{{rideId}}/complete",
-              "protocol": "http",
-              "host": [
-                "localhost"
-              ],
-              "port": "3000",
-              "path": [
-                "api",
-                "rides",
-                "{{rideId}}",
-                "complete"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Get All Rides (Admin)",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "http://localhost:3000/api/rides",
-              "protocol": "http",
-              "host": [
-                "localhost"
-              ],
-              "port": "3000",
-              "path": [
-                "api",
-                "rides"
-              ]
-            }
-          }
+        "url": {
+          "raw": "http://localhost:3000/api/auth/login",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["api", "auth", "login"]
         }
-      ]
+      }
     },
     {
-      "name": "Payments",
-      "item": [
-        {
-          "name": "Initiate STK Push",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "http://localhost:3000/api/payments/stkpush",
-              "protocol": "http",
-              "host": [
-                "localhost"
-              ],
-              "port": "3000",
-              "path": [
-                "api",
-                "payments",
-                "stkpush"
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"phoneNumber\": \"254712345678\",\n  \"amount\": 1000\n}"
-            }
-          }
+      "name": "Request Ride (Rider)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{riderToken}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"pickup\": \"Kilimani\",\n  \"destination\": \"CBD\",\n  \"fare\": 350\n}"
         },
-        {
-          "name": "Mock Callback",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "http://localhost:3000/api/payments/callback",
-              "protocol": "http",
-              "host": [
-                "localhost"
-              ],
-              "port": "3000",
-              "path": [
-                "api",
-                "payments",
-                "callback"
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"paymentId\": \"{{paymentId}}\",\n  \"status\": \"Completed\"\n}"
-            }
-          }
-        },
-        {
-          "name": "Get All Payments (Admin)",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "http://localhost:3000/api/payments",
-              "protocol": "http",
-              "host": [
-                "localhost"
-              ],
-              "port": "3000",
-              "path": [
-                "api",
-                "payments"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Get Payment by ID",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "http://localhost:3000/api/payments/{{paymentId}}",
-              "protocol": "http",
-              "host": [
-                "localhost"
-              ],
-              "port": "3000",
-              "path": [
-                "api",
-                "payments",
-                "{{paymentId}}"
-              ]
-            }
-          }
+        "url": {
+          "raw": "http://localhost:3000/api/rides/request",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["api", "rides", "request"]
         }
-      ]
+      }
+    },
+    {
+      "name": "Accept Ride (Driver)",
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{driverToken}}" }
+        ],
+        "body": { "mode": "raw", "raw": "{}" },
+        "url": {
+          "raw": "http://localhost:3000/api/rides/accept/{{rideId}}",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["api", "rides", "accept", "{{rideId}}"]
+        }
+      }
+    },
+    {
+      "name": "Complete Ride (Driver)",
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{driverToken}}" }
+        ],
+        "body": { "mode": "raw", "raw": "{}" },
+        "url": {
+          "raw": "http://localhost:3000/api/rides/complete/{{rideId}}",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["api", "rides", "complete", "{{rideId}}"]
+        }
+      }
+    },
+    {
+      "name": "STK Push Payment (Rider)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{riderToken}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"phoneNumber\": \"254712345678\",\n  \"amount\": 350,\n  \"rideId\": \"{{rideId}}\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3000/api/payment/stkpush",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["api", "payment", "stkpush"]
+        }
+      }
+    },
+    {
+      "name": "My Payments (Rider)",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{riderToken}}" }
+        ],
+        "url": {
+          "raw": "http://localhost:3000/api/payment/mine",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["api", "payment", "mine"]
+        }
+      }
+    },
+    {
+      "name": "All Payments (Admin Only)",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+        ],
+        "url": {
+          "raw": "http://localhost:3000/api/payment/all",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["api", "payment", "all"]
+        }
+      }
     }
   ]
 }
