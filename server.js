@@ -1,5 +1,6 @@
 import express from "express";
 import axios from "axios";
+import dotenv from "dotenv";
 import cors from "cors";
 import bodyParser from "body-parser";
 import mongoose from "mongoose";
@@ -11,8 +12,12 @@ import { authenticateToken, authorizeRoles } from "./utils/authMiddleware.js";
 import driverRoutes from "./routes/driverRoutes.js";
 import paymentRoutes from "./routes/paymentRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
+import testRoles from "./routes/testRoles.js";
+
+dotenv.config();
 
 const app = express();
+
 app.use(cors());
 app.use(bodyParser.json());
 
@@ -34,6 +39,7 @@ app.use("/api/rides", rideRoutes);
 app.use("/api/drivers", driverRoutes);
 app.use("/api/payments", paymentRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/testroles", testRoles);
 
 // === Daraja Sandbox Config ===
 const CONSUMER_KEY = "lPUGP6hGAW1O1mLH5yfsW9SgigL8yfPw2h7OI2HQuAzdajIl";
