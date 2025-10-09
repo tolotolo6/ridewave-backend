@@ -6,7 +6,8 @@ export default function Admin() {
 
   useEffect(() => {
     // Fetch all payments from backend
-    fetch("http://localhost:5000/api/payment/all")
+    fetch("https://ridewave-backend-vfhb.onrender.com
+/api/payment/all")
       .then((res) => res.json())
       .then((data) => {
         setPayments(data);
