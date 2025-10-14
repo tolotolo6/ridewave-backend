@@ -1,23 +1,21 @@
 import mongoose from "mongoose";
 
-const rideSchema = new mongoose.Schema({
-  rider: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-    required: true,
+const RideSchema = new mongoose.Schema(
+  {
+    rider: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+    driver: { type: mongoose.Schema.Types.ObjectId, ref: "Driver" },
+    pickup: { type: String, required: true },
+    destination: { type: String, required: true },
+    fare: { type: Number, required: true },
+    status: {
+      type: String,
+      enum: ["pending", "accepted", "completed"],
+      default: "pending",
+    },
   },
-  driver: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-  },
-  pickupLocation: { type: String, required: true },
-  destination: { type: String, required: true },
-  fare: { type: Number, required: true, default: 0 },
-  status: {
-    type: String,
-    enum: ["requested", "accepted", "completed", "cancelled", "paid"],
-    default: "requested",
-  },
-}, { timestamps: true });
+  { timestamps: true }
+);
 
-export default mongoose.model("Ride", rideSchema);
+const Ride = mongoose.model("Ride", RideSchema);
+
+export default Ride;

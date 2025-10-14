@@ -1,14 +1,16 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
+const UserSchema = new mongoose.Schema(
+  {
+    username: { type: String, unique: true, sparse: true }, // fixed null duplicate issue
+    email: { type: String, unique: true, required: true },
+    password: { type: String, required: true },
+    role: { type: String, enum: ["rider", "driver", "admin"], default: "rider" },
+  },
+  { timestamps: true }
+);
 
-const userSchema = new mongoose.Schema({
-username: String,
-email: String,
-password: String,
-phone: String,
-role: { type: String, default: 'rider' }
-});
+const User = mongoose.model("User", UserSchema);
 
-
-const User = mongoose.models.User || mongoose.model('User', userSchema);
 export default User;
+

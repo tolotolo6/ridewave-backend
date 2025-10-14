@@ -1,17 +1,18 @@
-// routes/userRoutes.js
 import express from "express";
-import { protect } from "../middleware/authMiddleware.js";
-import { updateProfile, changePassword, getUserById } from "../controllers/userController.js";
+import User from "../models/User.js";
 
 const router = express.Router();
 
-// GET /api/users/:id
-router.get("/:id", protect, getUserById);
-
-// PUT /api/users/profile -> Update profile
-router.put("/profile", protect, updateProfile);
-
-// PUT /api/users/change-password -> Change password
-router.put("/change-password", protect, changePassword);
+/**
+ * GET /api/users
+ */
+router.get("/", async (req, res) => {
+  try {
+    const users = await User.find();
+    res.json(users);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
 export default router;

@@ -1,22 +1,20 @@
 import axios from "axios";
 
-// Default baseURL points to environment variable if present, otherwise localhost.
-const baseURL =
-  (process.env.NEXT_PUBLIC_API_BASE_URL &&
-    process.env.NEXT_PUBLIC_API_BASE_URL.replace(/\/+$/, "")) ||
-  "http://localhost:3000/api";
-
-// Override for production Render deployment
+// Determine environment
 const isProduction = process.env.NODE_ENV === "production";
-const finalBaseURL = isProduction
-  ? "https://ridewave-backend-vfhb.onrender.com/api"
-  : baseURL;
 
+// Set baseURL based on environment
+const baseURL = isProduction
+  ? "https://ridewave-backend-vfhb.onrender.com/api" // ✅ Render live backend
+  : "http://localhost:5000/api"; // ✅ Local backend
+
+// Create Axios instance
 const instance = axios.create({
-  baseURL: finalBaseURL,
+  baseURL,
   headers: {
     "Content-Type": "application/json",
   },
 });
 
+// Export instance
 export default instance;

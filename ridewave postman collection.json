@@ -1,0 +1,209 @@
+{
+  "info": {
+    "name": "Ridewave API Final Full",
+    "_postman_id": "ridewave-full-collection-006",
+    "description": "Ridewave API collection with auto token and ID storage for Rider, Driver, and Admin.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Signup (Rider)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"John Rider\",\n  \"email\": \"john@example.com\",\n  \"password\": \"123456\",\n  \"role\": \"rider\"\n}"
+        },
+        "url": "{{baseUrl}}/api/auth/signup"
+      }
+    },
+    {
+      "name": "Signup (Driver)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Jane Driver\",\n  \"email\": \"jane@example.com\",\n  \"password\": \"123456\",\n  \"role\": \"driver\"\n}"
+        },
+        "url": "{{baseUrl}}/api/auth/signup"
+      }
+    },
+    {
+      "username": "Signup (Admin)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Admin User\",\n  \"email\": \"admin@example.com\",\n  \"password\": \"123456\",\n  \"role\": \"admin\"\n}"
+        },
+        "url": "{{baseUrl}}/api/auth/signup"
+      }
+    },
+    {
+      "name": "Login (Rider)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "let json = pm.response.json();",
+              "if (json.token) {",
+              "   pm.environment.set(\"riderToken\", json.token);",
+              "   if (json.user && json.user._id) pm.environment.set(\"riderId\", json.user._id);",
+              "   console.log(\"✅ Rider token stored\");",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"john@example.com\",\n  \"password\": \"123456\"\n}"
+        },
+        "url": "{{baseUrl}}/api/auth/login"
+      }
+    },
+    {
+      "name": "Login (Driver)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "let json = pm.response.json();",
+              "if (json.token) {",
+              "   pm.environment.set(\"driverToken\", json.token);",
+              "   if (json.user && json.user._id) pm.environment.set(\"driverId\", json.user._id);",
+              "   console.log(\"✅ Driver token stored\");",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"jane@example.com\",\n  \"password\": \"123456\"\n}"
+        },
+        "url": "{{baseUrl}}/api/auth/login"
+      }
+    },
+    {
+      "name": "Login (Admin)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "let json = pm.response.json();",
+              "if (json.token) {",
+              "   pm.environment.set(\"adminToken\", json.token);",
+              "   if (json.user && json.user._id) pm.environment.set(\"adminId\", json.user._id);",
+              "   console.log(\"✅ Admin token stored\");",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"123456\"\n}"
+        },
+        "url": "{{baseUrl}}/api/auth/login"
+      }
+    },
+    {
+      "name": "Request Ride (Rider)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "let json = pm.response.json();",
+              "if (json._id) { pm.environment.set(\"rideId\", json._id); console.log(\"🚖 Ride ID stored\"); }"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{riderToken}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"pickup\": \"Kilimani\",\n  \"destination\": \"CBD\",\n  \"fare\": 350\n}"
+        },
+        "url": "{{baseUrl}}/api/rides/request"
+      }
+    },
+    {
+      "name": "Accept Ride (Driver)",
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{driverToken}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"driver\": \"{{driverId}}\"\n}"
+        },
+        "url": "{{baseUrl}}/api/rides/accept/{{rideId}}"
+      }
+    },
+    {
+      "name": "Complete Ride (Driver)",
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{driverToken}}" }
+        ],
+        "body": { "mode": "raw", "raw": "{}" },
+        "url": "{{baseUrl}}/api/rides/complete/{{rideId}}"
+      }
+    },
+    {
+      "name": "STK Push Payment (Rider)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{riderToken}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"phoneNumber\": \"254712345678\",\n  \"amount\": 350,\n  \"rideId\": \"{{rideId}}\"\n}"
+        },
+        "url": "{{baseUrl}}/api/payments/stkpush"
+      }
+    }
+  ],
+  "variable": [
+    { "key": "baseUrl", "value": "https://ridewave-backend-vfhb.onrender.com" },
+    { "key": "riderToken", "value": "" },
+    { "key": "driverToken", "value": "" },
+    { "key": "adminToken", "value": "" },
+    { "key": "riderId", "value": "" },
+    { "key": "driverId", "value": "" },
+    { "key": "adminId", "value": "" },
+    { "key": "rideId", "value": "" }
+  ]
+}
