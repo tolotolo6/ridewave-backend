@@ -8,12 +8,12 @@ import path from "path";
 import { fileURLToPath } from "url";
 
 // === Routes ===
-import authRoutes from "./routes/auth.js";
-import rideRoutes from "./routes/rides.js";
-import driverRoutes from "./routes/driverRoutes.js";
-import paymentRoutes from "./routes/paymentRoutes.js";
-import userRoutes from "./routes/userRoutes.js";
-import testRoles from "./routes/testRoles.js";
+import authRoutes from "./src/routes/auth.js";
+import rideRoutes from "./src/routes/rides.js";
+import driverRoutes from "./src/routes/driverRoutes.js";
+import paymentRoutes from "./src/routes/paymentRoutes.js";
+import userRoutes from "./src/routes/userRoutes.js";
+import testRoles from "./src/routes/testRoles.js";
 
 // === Init ===
 dotenv.config();
